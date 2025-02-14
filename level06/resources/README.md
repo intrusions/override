@@ -62,9 +62,7 @@ Both inputs pass into a function `auth()` that uses `ptrace(PTRACE_TRACEME)` to 
 
 `auth()` next applies an algorithm on our inputs.
 
-Our goal will be to have our second input `nb` equal to the return value of `auth()`.
-
-## Step 2: Exploiting the Binary
+Our goal will be to have our second input `nb` equal to the return of the encryption algorithm.
 
 To crack the algorithm, we're just going to paste it in a `.c` file and try differents inputs to solve the problem.
 
