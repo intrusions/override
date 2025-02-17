@@ -101,6 +101,6 @@ ret[6229073] == arg[66229073]
 We just have to pass **6229073** as second input to make the shell terminal spawn.
 
 ```bash
-level06@OverRide:~$ cat /home/users/level06/.pass
-h4GtNnaMs2kZFN92ymTr2DcJHAzMfzLW25Ep59mq
+level06@OverRide:~$ cat /home/users/level07/.pass
+GbcPDRgsFK77LNnnuh7QyFYA2942Gp8yKj9KrWD8
 ```
