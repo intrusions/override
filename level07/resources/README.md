@@ -244,7 +244,7 @@ Input command: quit
 level07@OverRide:~$
 ```
 
-This binary begin by cleaning with `memset` all data stored in `argv` and `envp`.
+This binary begin by cleaning with `memset()` all data stored in `argv` and `envp`.
 
 Then the binary waits for user input in an infinite loop, accepting three different commands: `read`, `write` and `quit`.
   
