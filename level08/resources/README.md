@@ -52,16 +52,11 @@ int main(int argc, const char **argv, const char **envp)
 ### Explanation
 
 This binary takes a file path as a parameter and prints its content in `"./backups/"` + `argv[1].`
-
 It first checks whether the path `"./backups/.log"` exists, file where it writes logs indicating whether `"./backups/"` + `argv[1]` was successfully opened and closed.
-
 Next, the program verifies if the specified file and its path can be opened (with the privileges of the user **level09**) by calling `fopen()`.
-
 Finally, it calls `open()` to create a file in `"./backups/"` with our parameter as its name and then uses `write()` to save the file's content.
 
 To obtain the password for the next user, we need to pass the path of the password file owned by **level09** as a parameter for the program that is alse owned by **level09** to read.
-
-### Explanation
 
 The first issue is that we must pass a valid path that does not start with a backslash `"/"`, otherwise, when the path is created here:
 

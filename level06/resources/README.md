@@ -57,14 +57,10 @@ int main(int argc, const char **argv, const char **envp)
 ### Explanation
 
 The program uses `fgets()` to store a login inside a buffer `buff` and uses `scanf()` to store an integer in `nb`.
-
 Both inputs pass into a function `auth()` that uses `ptrace(PTRACE_TRACEME)` to deny the use of debuggers.
-
-`auth()` next applies an algorithm on our inputs.
+`auth()` next applies an algorithm using both inputs.
 
 Our goal will be to have our second input `nb` equal to the return of the encryption algorithm.
-
-To crack the algorithm, we're just going to paste it in a `.c` file and try differents inputs to solve the problem.
 
 ```c
 #include "stdlib.h"
@@ -82,25 +78,35 @@ int main(int ac, char **av) {
   for (int i = 0; i < strlen(av[1]); i++) {
     if (av[1][i] < ' ')
           return 1;
-    ret += (ret ^ av[1][i]) % 1337;
+    ret += (ret ^ av[1][i]) % 1337;        
   }
   
-  printf("ret[%d] == nb[%d]\n", ret, nb);
+  printf("algo_ret[%d] == second_input[%d]\n", ret, nb);
 }
 ```
 
-## Step 2: Exploiting the Binary
-
-When passing a random string "abc" as parameter the return value of the algorithm will always be **6229073** regardless of our second input.
+To crack it, we're just going to paste the algorithm in a `.c` file and brute force it.
 
 ```bash
-./a.out abc 66229073
-ret[6229073] == arg[66229073]
+./a.out 99999999 6233452
+algo_ret[6233452] == second_input[6233452]
 ```
 
-We just have to pass **6229073** as second input to make the shell terminal spawn.
+After multiple tests, we find out that passing `99999999` and `6233452` solve the problem 
+
+## Step 2: Exploiting the Binary
 
 ```bash
-level06@OverRide:~$ cat /home/users/level07/.pass
+level06@OverRide:~$ ./level06 
+***********************************
+*                 level06         *
+***********************************
+-> Enter Login: 99999999
+***********************************
+***** NEW ACCOUNT DETECTED ********
+***********************************
+-> Enter Serial: 6233452
+Authenticated!
+$ cat /home/users/level07/.pass
 GbcPDRgsFK77LNnnuh7QyFYA2942Gp8yKj9KrWD8
 ```
