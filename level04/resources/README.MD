@@ -43,8 +43,7 @@ int main(int argc, const char **argv, const char **envp)
 
 ### Explanation
 This program creates a child process using `fork()`.
-The parent process monitores the child process and prevents it to use `execve()` using `ptrace(PTRACE_PEEKUSER)`.
-The child process uses `get()` to fill the `buffer` without checking its size.
+The child process uses `get()` to fill a `buffer` without checking its size.
 The vulnerability is found in the child process where `get()` fills `buffer` without checking the number of characters `get()` can accept.
 This will enable us to make a buffer overflow and perform a `ret2libc` attack.
 This attack consists in overriding the copy `eip` copy with the address of the function`system()` and pass the `/bin/sh` string as parameter in order to open a shell terminal.
