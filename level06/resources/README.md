@@ -107,6 +107,6 @@ level06@OverRide:~$ ./level06
 ***********************************
 -> Enter Serial: 6233452
 Authenticated!
-$ cat /home/users/level07/.pass
+% cat /home/users/level07/.pass
 GbcPDRgsFK77LNnnuh7QyFYA2942Gp8yKj9KrWD8
 ```

